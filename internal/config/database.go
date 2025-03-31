@@ -10,6 +10,7 @@ type databaseConfig struct {
 	User string
 	Pass string
 	Name string
+	Port string
 }
 
 func InitDatabaseConfig() {
@@ -18,6 +19,7 @@ func InitDatabaseConfig() {
 			Host: getEnv("DB_HOST", "localhost"),
 			User: getEnv("DB_USER", "root"),
 			Pass: getEnv("DB_PASS", "secret"),
+			Port: getEnv("DB_PORT", "3306"),
 			Name: getEnv("DB_NAME", "mydb"),
 		}
 	})

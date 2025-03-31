@@ -1,6 +1,8 @@
 package database
 
 import (
+	"api/online-cinema-theather/internal/config"
+	"fmt"
 	"log"
 
 	"gorm.io/driver/mysql"
@@ -10,7 +12,13 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	dsn := "root:@tcp(localhost:3306)/go_restfull_api?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		config.DatabaseConfig.User,
+		config.DatabaseConfig.Pass,
+		config.DatabaseConfig.Host,
+		config.DatabaseConfig.Port,
+		config.DatabaseConfig.Name,
+	) 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
