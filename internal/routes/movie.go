@@ -16,4 +16,15 @@ func RegisterMovieRoutes(mux *http.ServeMux) {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	})
+
+	mux.HandleFunc("/movies/{id}", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetMovie(w, r)
+		case http.MethodDelete:
+			handlers.DeleteMovie(w, r)
+		default:
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	})
 }
