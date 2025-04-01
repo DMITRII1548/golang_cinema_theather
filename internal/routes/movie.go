@@ -10,6 +10,8 @@ func RegisterMovieRoutes(mux *http.ServeMux) {
 		switch r.Method {
 		case http.MethodGet:
 			handlers.GetMovies(w, r)
+		case http.MethodPost:
+			handlers.CreateMovie(w, r)
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
