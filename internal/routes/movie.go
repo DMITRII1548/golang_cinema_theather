@@ -23,6 +23,8 @@ func RegisterMovieRoutes(mux *http.ServeMux) {
 			handlers.GetMovie(w, r)
 		case http.MethodDelete:
 			handlers.DeleteMovie(w, r)
+		case http.MethodPatch:
+			handlers.UpdateMovie(w, r)
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}

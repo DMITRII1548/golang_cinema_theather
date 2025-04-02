@@ -96,7 +96,12 @@ func CreateMovie(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validate.Struct(movie); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+	}
+
+	if movie.ID != 0 {
+		http.Error(w, "id field is denied", http.StatusUnprocessableEntity)
+		return
 	}
 	
 	if err := database.DB.Create(&movie).Error; err != nil {
@@ -105,4 +110,54 @@ func CreateMovie(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendJSON(w, http.StatusCreated, movie)
+}
+
+func UpdateMovie(w http.ResponseWriter, r *http.Request) {
+	id := getMovieId(w, r)
+
+	if id == 0 {
+		return
+	}
+
+	var movie models.Movie
+	if err := database.DB.First(&movie, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Movie not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Failed to fetch movie", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	var updateData models.Movie
+	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	if err := validate.Struct(updateData); err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+
+	if updateData.ID != 0 {
+		http.Error(w, "id field is denied", http.StatusUnprocessableEntity)
+		return
+	}
+
+	if err := database.DB.Model(&movie).Updates(updateData).Error; err != nil {
+		http.Error(w, "Failed to update movie", http.StatusInternalServerError)
+		return
+	}
+
+	if err := database.DB.First(&movie, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Movie not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Failed to fetch movie", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	sendJSON(w, http.StatusOK, movie)
 }
