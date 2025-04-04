@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"api/online-cinema-theather/internal/config"
 	"api/online-cinema-theather/internal/database"
 	"api/online-cinema-theather/internal/models"
 	"crypto/rand"
@@ -116,6 +117,9 @@ func getMovie(w http.ResponseWriter, id int64) (*models.Movie, bool) {
 		return nil, false
 	}
 
+	movie.Preview = config.AppConfig.AppUrl + movie.Preview
+	movie.Thumbnail = config.AppConfig.AppUrl + movie.Thumbnail
+
 	return &movie, true
 }
 
@@ -129,6 +133,11 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 	if err := database.DB.Preload("Video").Offset(int(offset)).Limit(30).Find(&movies).Error; err != nil {
 		http.Error(w, "Failed to fetch movies", http.StatusInternalServerError)
 		return
+	}
+
+	for i := range movies {
+		movies[i].Thumbnail = config.AppConfig.AppUrl + "/" + movies[i].Thumbnail
+		movies[i].Preview = config.AppConfig.AppUrl + "/" + movies[i].Preview
 	}
 
 	sendJSON(w, http.StatusOK, movies)

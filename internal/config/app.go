@@ -12,6 +12,7 @@ var AppConfig *appConfig
 var onceApp sync.Once
 
 type appConfig struct {
+	AppUrl string
 	Port string
 }
 
@@ -24,6 +25,7 @@ func InitAppConfig() {
 		}
 
 		AppConfig = &appConfig{
+			AppUrl: getEnv("APP_URL", "http://localhost/"),
 			Port: getEnv("PORT", ":8080"),
 		}
 	})
