@@ -35,7 +35,7 @@ func generateRandomFileName(originalFilename string) string {
 	return randomString + ext
 }
 
-func putFile(w http.ResponseWriter, r *http.Request, uploadDir string, fieldName string) string {
+func putImageFile(w http.ResponseWriter, r *http.Request, uploadDir string, fieldName string) string {
 	file, handler, err := r.FormFile(fieldName)
 	if err != nil {
 		http.Error(w, "The '"+fieldName+"' field is required", http.StatusUnprocessableEntity)
@@ -156,12 +156,12 @@ func DeleteMovie(w http.ResponseWriter, r *http.Request) {
 func CreateMovie(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(20 << 20)
 
-	thumbnailFilePath := putFile(w, r, "storage/imgs/thumbnails/", "thumbnail")
+	thumbnailFilePath := putImageFile(w, r, "storage/imgs/thumbnails/", "thumbnail")
 	if thumbnailFilePath == "" {
 		return
 	}
 
-	previewFilePath := putFile(w, r, "storage/imgs/previews/", "preview")
+	previewFilePath := putImageFile(w, r, "storage/imgs/previews/", "preview")
 	if previewFilePath == "" {
 		os.Remove(thumbnailFilePath)
 		return
@@ -234,13 +234,13 @@ func UpdateMovie(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	newThumbnail := putFile(w, r, "storage/imgs/thumbnails/", "thumbnail")
+	newThumbnail := putImageFile(w, r, "storage/imgs/thumbnails/", "thumbnail")
 	if newThumbnail != "" {
 		os.Remove(movie.Thumbnail)
 		movie.Thumbnail = newThumbnail
 	}
 
-	newPreview := putFile(w, r, "storage/imgs/previews/", "preview")
+	newPreview := putImageFile(w, r, "storage/imgs/previews/", "preview")
 	if newPreview != "" {
 		os.Remove(movie.Preview)
 		movie.Preview = newPreview
