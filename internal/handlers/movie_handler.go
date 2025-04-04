@@ -5,12 +5,12 @@ import (
 	"api/online-cinema-theather/internal/models"
 	"crypto/rand"
 	"encoding/hex"
-	"path/filepath"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
@@ -90,6 +90,20 @@ func getMovieId(w http.ResponseWriter, r *http.Request) int64 {
 	return id
 }
 
+func getPageNumber(r *http.Request) int64 {
+	page, err := strconv.ParseInt(r.URL.Query().Get("page"), 10, 0)
+
+	if err != nil {
+		return 1
+	}
+
+	if page == 0 {
+		page = 1
+	}
+
+	return page
+}
+
 func getMovie(w http.ResponseWriter, id int64) (*models.Movie, bool) {
 	var movie models.Movie
 
@@ -106,9 +120,13 @@ func getMovie(w http.ResponseWriter, id int64) (*models.Movie, bool) {
 }
 
 func GetMovies(w http.ResponseWriter, r *http.Request) {
+	page := getPageNumber(r)
+
+	offset := (page - 1) * 30
+
 	var movies []models.Movie
 
-	if err := database.DB.Preload("Video").Limit(30).Find(&movies).Error; err != nil {
+	if err := database.DB.Preload("Video").Offset(int(offset)).Limit(30).Find(&movies).Error; err != nil {
 		http.Error(w, "Failed to fetch movies", http.StatusInternalServerError)
 		return
 	}
